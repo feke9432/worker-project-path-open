@@ -27,7 +27,7 @@ $ pnpm dev
 ### Build
 
 ```bash
-# For windows
+# For windows check!
 $ pnpm build:win
 
 # For macOS
