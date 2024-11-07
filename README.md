@@ -1,6 +1,10 @@
 # electron-app
 
-An Electron application with Vue and TypeScript
+私人音乐播放器，主要用于播放本地或nas 服务器上的音乐。
+
+专注于音乐播放，暂不做用户系统，第一界面为音乐播放界面，左侧为音乐列表，右侧为随机或顺序播放按钮。
+
+目标简洁、轻量，考虑车载，pc
 
 ## Recommended IDE Setup
 
