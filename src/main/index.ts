@@ -1,6 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
-import { exec } from 'child_process';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
@@ -60,35 +59,7 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
-
-
-  ipcMain.on('open-in-vscode', (event, {directory, file}) => {
-    openInVSCode(directory, file);
-  });
 })
-
-
-function openInVSCode(directory: string, file?: string) {
-  const vscodePath = 'code'; // 默认 VSCode 的命令行工具
-  console.log('main', directory, file);
-
-  let command = `${vscodePath} "${directory}"`;
-  if (file) {
-    command += ` "${file}"`;
-  }
-
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error opening directory and file in VSCode: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.error(`Error opening directory and file in VSCode: ${stderr}`);
-      return;
-    }
-    console.log(`Directory and file opened in VSCode: ${stdout}`);
-  });
-}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

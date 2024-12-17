@@ -32,3 +32,12 @@ $ pnpm build:mac
 # For Linux
 $ pnpm build:linux
 ```
+
+
+// 微信小程序
+applet.602yx.com
+// h5 sdk
+page.602yx.com
+apis.602yx.com
+spay.602yx.com
+web.602yx.com
