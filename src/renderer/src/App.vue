@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import * as XLSX from 'xlsx' // 引入 XLSX 模块
-onMounted(() => {})
+
+onMounted(async () => {
+  console.log(window.api)
+})
 
 interface XlsxItem {
   [key: string]: string
 }
 
 let ldata: XlsxItem[] = []
-
+const disabled = ref<boolean>(true)
 const downloadFile = () => {
   if (ldata.length < 0) return
   const vcfData: string[] = []
@@ -58,8 +61,8 @@ FN:${item['姓名']}
 }
 const handleFile = (event) => {
   const file = event.raw
-  console.log('chagne', file)
   if (!file) return
+  disabled.value = false
   const reader = new FileReader()
   reader.onload = function (e) {
     if (!e.target) {
@@ -77,6 +80,10 @@ const handleFile = (event) => {
     console.log(ldata)
   }
   reader.readAsArrayBuffer(file)
+}
+const handleExample = () => {
+  // @ts-ignore (define in dts)
+  window.api.downloadFile();
 }
 </script>
 
@@ -99,29 +106,37 @@ const handleFile = (event) => {
         </template>
       </el-upload>
       <div style="margin-top: 20px">
-        <el-button type="primary" size="large" style="width: 100%" @click="downloadFile"
+        <el-button
+          :disabled="disabled"
+          type="primary"
+          size="large"
+          style="width: 100%"
+          @click="downloadFile"
           >下载vcf</el-button
         >
       </div>
     </el-card>
     <div class="tips">
       <div>0. 请使用如下格式表格文件</div>
-      <div>1. 使用微信将生成的vcf文件传到手机</div>
-      <div>2. 微信中使用电话簿应用打开</div>
-      <div>3. 导入即可</div>
+      <div>1. 填好后使用左侧上传功能上传数据</div>
+      <div>2. 点击下载vcf按钮，下载vcf到本地</div>
+      <div>3. 使用电脑微信将生成的vcf传到手机</div>
+      <div>4. 手机微信中使用电话簿应用打开</div>
+      <div>5. 按提示导入即可</div>
+      <div>
+        <el-button type="text" @click="handleExample">模板下载</el-button>
+      </div>
     </div>
-
   </div>
   <div class="img-box">
-      <img src="./assets/Snipaste.png" alt="" />
-    </div>
+    <img src="./assets/Snipaste.png" alt="" />
+  </div>
 </template>
 
 <style>
 .container {
   background: #fff;
   display: flex;
-
 }
 
 .box {

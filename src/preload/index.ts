@@ -3,9 +3,22 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  openInVSCode: (data: {directory: string, file?: string}) => {
-    ipcRenderer.send('open-in-vscode', data);
+  openInVSCode: (data: { directory: string; file?: string }) => {
+    ipcRenderer.send('open-in-vscode', data)
   },
+  downloadFile: () => {
+    ipcRenderer.send('download-file', './resources/example.xls')
+
+    ipcRenderer.on('download-success', (event, savePath) => {
+      console.log('File downloaded successfully to:', savePath)
+      alert(`File downloaded successfully to: ${savePath}`)
+    })
+
+    ipcRenderer.on('download-error', (event, errorMessage) => {
+      console.error('Error downloading file:', errorMessage)
+      alert(`Error downloading file: ${errorMessage}`)
+    })
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

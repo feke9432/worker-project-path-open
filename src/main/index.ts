@@ -1,7 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import fs from 'fs'
+import path from 'path'
 
 function createWindow(): void {
   // Create the browser window.
@@ -51,6 +53,27 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.on('download-file', async (event, filePath: string) => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (!win) return
+
+    const { filePath: savePath } = await dialog.showSaveDialog(win, {
+      defaultPath: path.basename(filePath)
+    })
+
+    if (savePath) {
+      fs.copyFile(filePath, savePath, (err) => {
+        if (err) {
+          console.error('Error copying file:', err)
+          event.reply('download-error', err.message)
+        } else {
+          console.log('File saved successfully!')
+          event.reply('download-success', savePath)
+        }
+      })
+    }
+  })
 
   createWindow()
 
