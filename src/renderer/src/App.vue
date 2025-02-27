@@ -14,6 +14,10 @@ interface Node {
   url?: string; // 开发目录
   file?: string; // 具体开发文件
   tips?: string; // 提示信息
+  tasks?: {
+    title: string;
+    url: string;
+  }[];
 }
 const workerData: Node[] = treedata
 const currNode = ref<Node>({label: ''})
@@ -35,6 +39,10 @@ const handleNodeClick = (data: Node) => {
     })
   }
 }
+const activeName = ref('first')
+const handleClick = (tab: unknown, event: unknown) => {
+  console.log(tab, event);
+}
 </script>
 
 <template>
@@ -49,9 +57,19 @@ const handleNodeClick = (data: Node) => {
         @node-click="handleNodeClick"
       />
       <div class="tips">
-        <h3>项目说明</h3>
-        <div v-if="currNode.url" style="color: #666; padding: 10px;">项目目录：{{ currNode.url }}</div>
-        <div class="tips-content" v-if="currNode.tips" v-html="currNode.tips"></div>
+        <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+          <el-tab-pane label="项目说明" name="first">
+            <div v-if="currNode.url" style="color: #666; padding: 10px;">项目目录：{{ currNode.url }}</div>
+          <div class="tips-content" v-if="currNode.tips" v-html="currNode.tips"></div>
+          </el-tab-pane>
+          <el-tab-pane label="完成任务" name="second">
+            <div v-for="(item, index) in currNode.tasks" :key="index" class="tips-content">
+              <div>
+                <a :href="item.url" target="_blank">{{ item.title }}</a>
+              </div>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
       </div>
     </div>
   </div>
@@ -68,6 +86,7 @@ const handleNodeClick = (data: Node) => {
   color: #333;
   margin-left: 20px;
   padding: 10px;
+  width: 500px;
 }
 .tips h3 {
   color: #666;
