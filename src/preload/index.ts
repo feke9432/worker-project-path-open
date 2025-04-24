@@ -3,9 +3,16 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  openInVSCode: (data: {directory: string, file?: string}) => {
-    ipcRenderer.send('open-in-vscode', data);
+  openInVSCode: (data: { directory: string; file?: string }) => {
+    ipcRenderer.send('open-in-vscode', data)
   },
+  openInStatic: (data: { directory: string; file?: string }) => {
+    ipcRenderer.send('open-in-static', data)
+  },
+  switch: (data: string[]) => {
+    ipcRenderer.send('copy-files', data)
+    console.log(data)
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

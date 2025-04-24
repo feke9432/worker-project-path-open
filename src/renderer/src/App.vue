@@ -3,27 +3,28 @@ import { ref, onMounted } from 'vue'
 
 import { ElMessageBox } from 'element-plus'
 
-import treedata  from './config/1.json'
+import { treedata } from './config/1.js'
 
 onMounted(() => {})
 
 const project_tips = ref('')
 interface Node {
-  label: string;
-  children?: Node[];
-  url?: string; // 开发目录
-  file?: string; // 具体开发文件
-  tips?: string; // 提示信息
+  label: string
+  children?: Node[]
+  url?: string // 开发目录
+  fileUrl?: string // 开发文件
+  file?: string // 具体开发文件
+  tips?: string // 提示信息
   tasks?: {
-    title: string;
-    url: string;
-  }[];
+    title: string
+    url: string
+  }[],
+  switch?: string[]
 }
 const workerData: Node[] = treedata
-const currNode = ref<Node>({label: ''})
+const currNode = ref<Node>({ label: '' })
 const handleNodeClick = (data: Node) => {
-  console.log(data)
-  currNode.value = data;
+  currNode.value = data
   project_tips.value = data.tips || ''
   if (data.url) {
     ElMessageBox.confirm(`确认使用 Vscode 打开 ${data.url} 目录吗？`, 'Warning', {
@@ -31,17 +32,25 @@ const handleNodeClick = (data: Node) => {
       cancelButtonText: '算了',
       type: 'warning'
     }).then(() => {
-      // @ts-ignore
       window.api.openInVSCode({
         directory: data.url,
         file: data.file
       })
     })
   }
+  if (data.fileUrl) {
+    window.api.openInStatic({
+      directory: data.fileUrl
+    })
+  }
+  if (data.switch) {
+    const _data = JSON.parse(JSON.stringify(data.switch))
+    window.api.switch(_data)
+  }
 }
 const activeName = ref('first')
 const handleClick = (tab: unknown, event: unknown) => {
-  console.log(tab, event);
+  console.log(tab, event)
 }
 </script>
 
@@ -59,10 +68,12 @@ const handleClick = (tab: unknown, event: unknown) => {
       <div class="tips">
         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane label="项目说明" name="first">
-            <div v-if="currNode.url" style="color: #666; padding: 10px;">项目目录：{{ currNode.url }}</div>
-          <div class="tips-content" v-if="currNode.tips" v-html="currNode.tips"></div>
+            <div v-if="currNode.url" style="color: #666; padding: 10px">
+              项目目录：{{ currNode.url }}
+            </div>
+            <div class="tips-content" v-if="currNode.tips" v-html="currNode.tips"></div>
           </el-tab-pane>
-          <el-tab-pane label="完成任务" name="second">
+          <el-tab-pane label="相关工单" name="second">
             <div v-for="(item, index) in currNode.tasks" :key="index" class="tips-content">
               <div>
                 <a :href="item.url" target="_blank">{{ item.title }}</a>

@@ -1,14 +1,15 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
-import { exec } from 'child_process';
+import { exec } from 'child_process'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import fs from 'fs'
 
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
-    height: 800,
+    height: 1000,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -61,33 +62,83 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
+  ipcMain.on('open-in-vscode', (_event, { directory, file }) => {
+    openInVSCode(directory, file)
+  })
 
-  ipcMain.on('open-in-vscode', (event, {directory, file}) => {
-    openInVSCode(directory, file);
-  });
+  ipcMain.on('open-in-static', (_event, { directory }) => {
+    openInVStatic(directory)
+  })
+
+  // 在 IPC 监听器部分添加新的处理程序
+  ipcMain.on('copy-files', (_event, directories: string[]) => {
+    const [sourceDir, targetDir] = directories
+    try {
+      // 递归复制并覆盖已有文件
+      fs.cpSync(sourceDir, targetDir, {
+        recursive: true,
+        force: true,
+        errorOnExist: false
+      })
+      console.log(`文件已成功从 ${sourceDir} 复制到 ${targetDir}`)
+      openInVStatic(targetDir)
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`复制失败: ${error.message}`);
+      } else {
+        console.error(`复制失败: 发生未知错误`);
+      }
+    }
+  })
 })
 
-
 function openInVSCode(directory: string, file?: string) {
-  const vscodePath = 'code'; // 默认 VSCode 的命令行工具
-  console.log('main', directory, file);
+  const vscodePath = 'code' // 默认 VSCode 的命令行工具
+  console.log('main', directory, file)
 
-  let command = `${vscodePath} "${directory}"`;
+  let command = `${vscodePath} "${directory}"`
   if (file) {
-    command += ` "${file}"`;
+    command += ` "${file}"`
   }
 
   exec(command, (error, stdout, stderr) => {
     if (error) {
-      console.error(`Error opening directory and file in VSCode: ${error.message}`);
-      return;
+      console.error(`Error opening directory and file in VSCode: ${error.message}`)
+      return
     }
     if (stderr) {
-      console.error(`Error opening directory and file in VSCode: ${stderr}`);
-      return;
+      console.error(`Error opening directory and file in VSCode: ${stderr}`)
+      return
     }
-    console.log(`Directory and file opened in VSCode: ${stdout}`);
-  });
+    console.log(`Directory and file opened in VSCode: ${stdout}`)
+  })
+}
+
+async function openInVStatic(fullPath: string) {
+  try {
+    fullPath = fullPath.replaceAll('/', '\\')
+    console.log('openInVStatic', fullPath)
+    let command: string
+    switch (process.platform) {
+      case 'win32':
+        command = `explorer "${fullPath}"`
+        break
+      case 'darwin':
+        command = `open "${fullPath}"`
+        break
+      default:
+        command = `xdg-open "${fullPath}"`
+    }
+
+    exec(command, (error) => {
+      if (error) {
+        console.error(`Failed to open directory: ${error.message}`)
+      }
+    })
+  } catch (error) {
+    console.error(`Error accessing path: ${error}`)
+  }
+
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
