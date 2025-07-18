@@ -60,7 +60,7 @@ const handleClick = (tab: unknown, event: unknown) => {
     <h1 class="rainbow-h1">开启氮气加速</h1>
     <div class="control-box">
       <el-tree
-        style="max-width: 600px"
+        style="max-width: 600px; height: 800px; overflow-y: auto;"
         :data="workerData"
         :default-expand-all="true"
         @node-click="handleNodeClick"
@@ -91,6 +91,7 @@ const handleClick = (tab: unknown, event: unknown) => {
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
+
 }
 .tips {
   background: #fff;
