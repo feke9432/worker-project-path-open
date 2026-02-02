@@ -21,7 +21,7 @@ interface Node {
   }[],
   switch?: string[]
 }
-const workerData: Node[] = treedata
+const workerData: Node[] = treedata;
 const currNode = ref<Node>({ label: '' })
 const handleNodeClick = (data: Node) => {
   currNode.value = data
@@ -60,9 +60,9 @@ const handleClick = (tab: unknown, event: unknown) => {
     <h1 class="rainbow-h1">开启氮气加速</h1>
     <div class="control-box">
       <el-tree
-        style="max-width: 600px; height: 800px; overflow-y: auto;"
+        style="max-width: 600px;min-width: 300px; height: 900px; overflow-y: auto;"
         :data="workerData"
-        :default-expand-all="true"
+        default-expand-all
         @node-click="handleNodeClick"
       />
       <div class="tips">
@@ -91,7 +91,6 @@ const handleClick = (tab: unknown, event: unknown) => {
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
-
 }
 .tips {
   background: #fff;
